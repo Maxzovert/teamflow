@@ -72,6 +72,10 @@ export const messageSchema = z.object({
       })
     )
     .optional(),
+  /** Users to notify (mention). Omit for normal chat with no @mentions. */
+  mentionedUserIds: z.array(z.string()).optional(),
+  /** Skip mention alerts (e.g. assign-task already sends task_assigned). */
+  suppressNotifications: z.boolean().optional(),
 });
 
 export const discussionGroupSchema = z.object({

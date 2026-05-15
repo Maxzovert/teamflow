@@ -1,7 +1,9 @@
 import { connectDB } from "@/lib/db";
 import { Message } from "@/models/Message";
 import { DiscussionGroup } from "@/models/DiscussionGroup";
+import { User } from "@/models/User";
 import { messageSchema } from "@/lib/validations";
+import { findMentionedMemberIds } from "@/lib/mention-utils";
 import { createNotifications } from "@/lib/notifications";
 import { serializeMessageForSocket } from "@/lib/chat-message";
 import { emitToDiscussion, emitToUser } from "@/lib/socket-server";
@@ -73,26 +75,46 @@ export async function POST(
   );
   emitToDiscussion(groupId, "message:new", socketPayload);
 
-  const otherMembers = group.members.filter(
-    (m) => m.toString() !== user!.id
-  );
+  if (!parsed.data.suppressNotifications) {
+    const memberUsers = await User.find({
+      _id: { $in: group.members },
+    }).select("name");
 
-  if (otherMembers.length > 0) {
-    const notifs = otherMembers.map((memberId) => ({
-      recipientId: memberId.toString(),
-      senderId: user!.id,
-      type: "message" as const,
-      title: `New message in ${group.name}`,
-      message: parsed.data.content.slice(0, 100),
-      link: `/projects/${group.project}?chat=${groupId}`,
+    const members = memberUsers.map((m) => ({
+      _id: m._id.toString(),
+      name: m.name,
     }));
-    await createNotifications(notifs);
-    for (const n of notifs) {
-      emitToUser(n.recipientId, "notification:new", {
-        type: "message",
-        title: n.title,
-        message: n.message,
-        link: n.link,
+
+    const parsedMentions = findMentionedMemberIds(parsed.data.content, members);
+    const explicitMentions = parsed.data.mentionedUserIds || [];
+    const recipientIds = [
+      ...new Set([...explicitMentions, ...parsedMentions]),
+    ].filter((id) => id !== user!.id);
+
+    if (recipientIds.length > 0) {
+      const senderName = user!.name || "Someone";
+      const link = `/discussions?channel=${groupId}`;
+      const preview = parsed.data.content.slice(0, 100);
+
+      const notifs = recipientIds.map((recipientId) => ({
+        recipientId,
+        senderId: user!.id,
+        type: "mention" as const,
+        title: `${senderName} mentioned you in #${group.name}`,
+        message: preview,
+        link,
+      }));
+
+      const created = await createNotifications(notifs);
+      created.forEach((doc, i) => {
+        const n = notifs[i];
+        emitToUser(n.recipientId, "notification:new", {
+          _id: doc._id.toString(),
+          type: "mention",
+          title: n.title,
+          message: n.message,
+          link: n.link,
+        });
       });
     }
   }

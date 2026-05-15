@@ -296,7 +296,12 @@ export function useMessages(groupId: string) {
 export function useSendMessage(groupId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: { content: string; attachments?: unknown[] }) =>
+    mutationFn: (data: {
+      content: string;
+      attachments?: unknown[];
+      mentionedUserIds?: string[];
+      suppressNotifications?: boolean;
+    }) =>
       fetchApi(`/api/discussions/${groupId}/messages`, {
         method: "POST",
         body: JSON.stringify(data),

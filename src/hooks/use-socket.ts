@@ -27,6 +27,9 @@ export function useSocket() {
       message: string;
       link?: string;
     }) => {
+      // Regular chat messages no longer push; only @mentions and other types.
+      if (data.type === "message") return;
+
       const notification = {
         _id: data._id || `live-${Date.now()}`,
         type: data.type,

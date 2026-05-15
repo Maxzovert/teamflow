@@ -17,6 +17,7 @@ import {
 import { useChatStore } from "@/stores/chat-store";
 import { getSocket } from "@/lib/socket-client";
 import { normalizeChatMessage } from "@/lib/chat-message";
+import { findMentionedMemberIds } from "@/lib/mention-utils";
 import { MessageBubble } from "./message-bubble";
 import { ChatComposeMenu } from "./chat-compose-menu";
 import {
@@ -87,17 +88,26 @@ export function ChatPanel({
   const context = contextData as DiscussionContextData | undefined;
   const projectId = projectIdProp || context?.projectId;
 
+  const allMembersForMentions = useMemo(() => {
+    return (context?.members || []).map((m) => ({
+      _id: toId(m._id ?? m),
+      name: m.name || "Member",
+    }));
+  }, [context?.members]);
+
   const members: ChatMember[] = useMemo(() => {
-    const list = context?.members || [];
-    return list
-      .map((m) => ({
-        _id: toId(m._id ?? m),
-        name: m.name || "Member",
-        email: m.email,
-        avatar: m.avatar,
-      }))
-      .filter((m) => m._id && m._id !== session?.user?.id);
-  }, [context?.members, session?.user?.id]);
+    return allMembersForMentions
+      .filter((m) => m._id && m._id !== session?.user?.id)
+      .map((m) => {
+        const full = context?.members?.find((x) => toId(x._id ?? x) === m._id);
+        return {
+          _id: m._id,
+          name: m.name,
+          email: full?.email,
+          avatar: full?.avatar,
+        };
+      });
+  }, [allMembersForMentions, context?.members, session?.user?.id]);
 
   const taskGroups = context?.taskGroups || [];
 
@@ -202,9 +212,22 @@ export function ChatPanel({
     typingTimeoutRef.current = setTimeout(() => emitTyping(false), 1500);
   };
 
-  const postMessage = async (text: string) => {
+  const postMessage = async (
+    text: string,
+    options?: { suppressNotifications?: boolean }
+  ) => {
     if (!text.trim()) return;
-    await sendMessage.mutateAsync({ content: text.trim() });
+    const trimmed = text.trim();
+    const mentionedUserIds = findMentionedMemberIds(
+      trimmed,
+      allMembersForMentions
+    );
+    await sendMessage.mutateAsync({
+      content: trimmed,
+      mentionedUserIds:
+        mentionedUserIds.length > 0 ? mentionedUserIds : undefined,
+      suppressNotifications: options?.suppressNotifications,
+    });
   };
 
   const handleSend = async (e: React.FormEvent) => {
@@ -230,7 +253,7 @@ export function ChatPanel({
 
   const handleAssigned = async (text: string) => {
     setContent("");
-    await postMessage(text);
+    await postMessage(text, { suppressNotifications: true });
   };
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
