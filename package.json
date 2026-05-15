@@ -6,7 +6,8 @@
     "dev": "tsx server.ts",
     "build": "next build",
     "start": "cross-env NODE_ENV=production tsx server.ts",
-    "lint": "eslint"
+    "generate-pwa-icons": "node scripts/generate-pwa-icons.cjs",
+    "prebuild": "node scripts/generate-pwa-icons.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -52,6 +53,7 @@
     "cross-env": "^10.1.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
+    "pngjs": "^7.0.0",
     "tailwindcss": "^4",
     "tsx": "^4.22.0",
     "typescript": "^5"

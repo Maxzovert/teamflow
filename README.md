@@ -67,6 +67,8 @@ Remove or override any **`NEXTAUTH_URL=http://localhost:3000`** pulled from a co
 
 **Note:** This repo’s `npm run start` uses a **custom Node server** (`server.ts`) for Socket.IO. Default Vercel runs `next start` without that server, so real-time sockets may need a separate host or a different deployment target. Auth and normal pages work once env URLs are correct.
 
+**Install / “Download app” in Chrome:** The PWA needs **HTTPS**, PNG icons (**192** and **512**), a **service worker**, and a valid **manifest** (included). After deploy, use Chrome’s **install icon** in the address bar or **⋮ → Install Tobedone…**. If it doesn’t appear, clear site data for the URL and hard-refresh once.
+
 ## Scripts
 
 | Command | Description |

@@ -38,8 +38,8 @@ export async function showAppNotification(payload: AppNotificationPayload): Prom
   const options: NotificationOptions = {
     body: payload.message,
     tag: payload.tag || payload.title,
-    icon: "/icons/icon.svg",
-    badge: "/icons/icon.svg",
+    icon: "/icons/icon-192.png",
+    badge: "/icons/icon-192.png",
     data: { url: payload.link || "/notifications" },
   };
 
