@@ -37,7 +37,7 @@ A real-time team collaboration app built with Next.js, MongoDB, Socket.IO, and N
    |----------|-------------|
    | `MONGODB_URI` | MongoDB connection string |
    | `NEXTAUTH_SECRET` | Random secret for NextAuth sessions |
-   | `NEXTAUTH_URL` | App URL (e.g. `http://localhost:3000`) |
+   | `NEXTAUTH_URL` / `AUTH_URL` | App URL (local: `http://localhost:3000`; production: `https://your-domain.vercel.app`) |
    | `AUTH_SECRET` | Auth secret (can match `NEXTAUTH_SECRET`) |
 
 3. **Run the development server**
@@ -51,6 +51,21 @@ A real-time team collaboration app built with Next.js, MongoDB, Socket.IO, and N
 4. **Create an account**
 
    Visit `/register` to create your first user, then sign in at `/login`.
+
+## Deploying to Vercel
+
+The error *“Unsafe attempt to load URL http://localhost:3000/login from frame…”* on your real site means **Auth still thinks the app URL is localhost**. In the Vercel project → **Settings → Environment Variables**, set:
+
+| Variable | Value |
+|----------|--------|
+| `AUTH_URL` | `https://teamflow-seven-rust.vercel.app` (your real URL, `https`, no trailing slash) |
+| `NEXTAUTH_URL` | Same as `AUTH_URL` (optional if you only use `AUTH_URL`) |
+| `AUTH_SECRET` / `NEXTAUTH_SECRET` | Same strong secret as local (or a new one) |
+| `MONGODB_URI` | MongoDB Atlas URI (allow `0.0.0.0/0` or Vercel IPs) |
+
+Remove or override any **`NEXTAUTH_URL=http://localhost:3000`** pulled from a copied `.env`. Redeploy after saving.
+
+**Note:** This repo’s `npm run start` uses a **custom Node server** (`server.ts`) for Socket.IO. Default Vercel runs `next start` without that server, so real-time sockets may need a separate host or a different deployment target. Auth and normal pages work once env URLs are correct.
 
 ## Scripts
 

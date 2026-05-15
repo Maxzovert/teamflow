@@ -1,5 +1,6 @@
 import { Server as SocketIOServer } from "socket.io";
 import type { Server as HTTPServer } from "http";
+import { getPublicAppOrigin } from "@/lib/app-origin";
 
 export type SocketServer = SocketIOServer;
 
@@ -10,7 +11,7 @@ export function initSocketServer(httpServer: HTTPServer): SocketIOServer {
     path: "/api/socket",
     addTrailingSlash: false,
     cors: {
-      origin: process.env.NEXTAUTH_URL || "http://localhost:3000",
+      origin: getPublicAppOrigin(),
       methods: ["GET", "POST"],
     },
   });
