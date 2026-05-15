@@ -64,4 +64,7 @@ fs.mkdirSync(out, { recursive: true });
 const rgb = [124, 58, 237];
 fs.writeFileSync(path.join(out, "icon-192.png"), solidPng(192, 192, ...rgb));
 fs.writeFileSync(path.join(out, "icon-512.png"), solidPng(512, 512, ...rgb));
-console.log("Wrote public/icons/icon-192.png and icon-512.png");
+fs.writeFileSync(path.join(out, "apple-touch-icon.png"), solidPng(180, 180, ...rgb));
+console.log(
+  "Wrote public/icons/icon-192.png, icon-512.png, apple-touch-icon.png"
+);

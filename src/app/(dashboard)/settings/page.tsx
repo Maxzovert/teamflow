@@ -7,6 +7,7 @@ import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { PushNotificationsSettings } from "@/components/settings/push-notifications-settings";
+import { InstallPwaCard } from "@/components/settings/install-pwa-card";
 
 export default function SettingsPage() {
   return (
@@ -14,6 +15,16 @@ export default function SettingsPage() {
       <Header title="Settings" subtitle="Account and app preferences" />
       <div className="p-4 lg:p-6 max-w-2xl mx-auto space-y-6">
         <PushNotificationsSettings />
+
+        <Card animate={false}>
+          <CardHeader>
+            <CardTitle>Install app</CardTitle>
+            <CardDescription>Add Tobedone to your phone or desktop home screen</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <InstallPwaCard />
+          </CardContent>
+        </Card>
 
         <Card animate={false}>
           <CardHeader>
