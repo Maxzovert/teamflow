@@ -37,8 +37,10 @@ export async function POST(
     return apiError("Only project admins can create admin-only groups", 403);
   }
 
+  const { icon, ...groupData } = parsed.data;
   const taskGroup = await TaskGroup.create({
-    ...parsed.data,
+    ...groupData,
+    ...(icon != null && icon.trim() ? { icon: icon.trim() } : {}),
     project: projectId,
     admins: parsed.data.permission === "admin" ? [user!.id] : [],
   });
