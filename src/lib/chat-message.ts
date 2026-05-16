@@ -32,7 +32,7 @@ export function normalizeChatMessage(
     _id: toId(raw._id),
     content: String(raw.content ?? ""),
     sender,
-    discussionGroup: toId(raw.discussionGroup) || fallbackGroupId || "",
+    taskGroup: toId(raw.taskGroup) || fallbackGroupId || "",
     attachments: (raw.attachments as ChatMessage["attachments"]) ?? [],
     reactions: (raw.reactions as ChatMessage["reactions"]) ?? [],
     readBy: (raw.readBy as ChatMessage["readBy"]) ?? [],
@@ -66,6 +66,6 @@ export function serializeMessageForSocket(
   }
 
   plain._id = toId(plain._id);
-  plain.discussionGroup = groupId;
+  plain.taskGroup = groupId;
   return plain;
 }

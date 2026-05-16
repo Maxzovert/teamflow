@@ -1,6 +1,6 @@
 import { connectDB } from "@/lib/db";
-import { DiscussionGroup } from "@/models/DiscussionGroup";
 import { TaskGroup } from "@/models/TaskGroup";
+import { Project } from "@/models/Project";
 import { apiSuccess, apiError, requireApiAuth } from "@/lib/api-utils";
 
 export async function GET(
@@ -13,11 +13,12 @@ export async function GET(
   const { id } = await params;
   await connectDB();
 
-  const group = await DiscussionGroup.findById(id)
-    .populate("members", "name email avatar")
-    .populate("project", "name color icon");
+  const group = await TaskGroup.findById(id).populate("project", "name color icon");
 
-  if (!group) return apiError("Discussion group not found", 404);
+  if (!group) return apiError("Task group not found", 404);
+
+  const project = await Project.findById(group.project).populate("members.user", "name email avatar");
+  const members = project?.members.map(m => m.user) || [];
 
   const taskGroups = await TaskGroup.find({ project: group.project }).select(
     "name permission"
@@ -28,7 +29,7 @@ export async function GET(
     name: group.name,
     projectId: group.project._id.toString(),
     projectName: (group.project as { name?: string }).name,
-    members: group.members,
+    members: members,
     taskGroups,
   });
 }

@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 interface TaskGroup {
   _id: string;
   name: string;
+  icon?: string;
   permission?: "admin" | "open";
 }
 
@@ -41,12 +42,6 @@ interface ProjectDetailData {
     }>;
   };
   taskGroups: TaskGroup[];
-  discussionGroups: Array<{
-    _id: string;
-    name: string;
-    description?: string;
-    permission?: "open" | "admin";
-  }>;
   canManage?: boolean;
   tasks: Array<{
     _id: string;
@@ -125,13 +120,14 @@ function ProjectDetailContent({
 
   const discussionChannels: DiscussionChannelItem[] = useMemo(
     () =>
-      (detail?.discussionGroups || []).map((g) => ({
+      (detail?.taskGroups || []).map((g) => ({
         _id: toId(g._id),
         name: g.name,
-        description: g.description,
+        description: undefined,
+        icon: g.icon,
         permission: g.permission,
       })),
-    [detail?.discussionGroups]
+    [detail?.taskGroups]
   );
 
   useEffect(() => {
@@ -174,9 +170,9 @@ function ProjectDetailContent({
   const canCreateAdminGroup = canManage;
 
   const selectedDiscussion =
-    detail?.discussionGroups?.find((d) => toId(d._id) === activeDiscussion) ||
-    detail?.discussionGroups?.find((d) => toId(d._id) === channelParam) ||
-    detail?.discussionGroups?.[0];
+    detail?.taskGroups?.find((d) => toId(d._id) === activeDiscussion) ||
+    detail?.taskGroups?.find((d) => toId(d._id) === channelParam) ||
+    detail?.taskGroups?.[0];
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
@@ -344,20 +340,15 @@ function ProjectDetailContent({
           >
             <div className="flex-1 min-h-0 overflow-hidden -mx-4 lg:mx-0 border-t border-slate-200 lg:border-0 lg:rounded-xl lg:border lg:border-slate-200">
               <DiscordDiscussionsView
-                projects={[
-                  {
-                    _id: id,
-                    name: project.name,
-                    color: project.color,
-                    icon: project.icon,
-                    channels: discussionChannels,
-                  },
-                ]}
-                initialProjectId={channelParam ? id : null}
+                project={{
+                  _id: id,
+                  name: project.name,
+                  color: project.color,
+                  icon: project.icon,
+                  channels: discussionChannels,
+                }}
                 initialChannelId={channelParam}
-                onProjectChange={handleDiscussionProjectSelect}
                 onChannelChange={handleDiscussionSelect}
-                addMenuMode="project"
                 canCreateAdminGroup={canCreateAdminGroup}
               />
             </div>

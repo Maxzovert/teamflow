@@ -3,7 +3,7 @@ import { create } from "zustand";
 export interface ChatMessage {
   _id: string;
   content: string;
-  discussionGroup?: string;
+  taskGroup?: string;
   sender: { _id: string; name: string; email: string; avatar?: string };
   attachments: { name: string; url: string; type: string; size: number }[];
   reactions: { emoji: string; users: string[] }[];

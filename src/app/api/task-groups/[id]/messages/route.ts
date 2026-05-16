@@ -1,6 +1,7 @@
 import { connectDB } from "@/lib/db";
 import { Message } from "@/models/Message";
-import { DiscussionGroup } from "@/models/DiscussionGroup";
+import { TaskGroup } from "@/models/TaskGroup";
+import { Project } from "@/models/Project";
 import { User } from "@/models/User";
 import { messageSchema } from "@/lib/validations";
 import { findMentionedMemberIds } from "@/lib/mention-utils";
@@ -23,7 +24,7 @@ export async function GET(
 
   await connectDB();
 
-  const filter: Record<string, unknown> = { discussionGroup: groupId };
+  const filter: Record<string, unknown> = { taskGroup: groupId };
   if (cursor) {
     filter.createdAt = { $lt: new Date(cursor) };
   }
@@ -53,11 +54,11 @@ export async function POST(
 
   await connectDB();
 
-  const group = await DiscussionGroup.findById(groupId);
-  if (!group) return apiError("Discussion group not found", 404);
+  const group = await TaskGroup.findById(groupId);
+  if (!group) return apiError("Task group not found", 404);
 
   const message = await Message.create({
-    discussionGroup: groupId,
+    taskGroup: groupId,
     sender: user!.id,
     content: parsed.data.content,
     attachments: parsed.data.attachments || [],
@@ -76,8 +77,10 @@ export async function POST(
   emitToDiscussion(groupId, "message:new", socketPayload);
 
   if (!parsed.data.suppressNotifications) {
+    const project = await Project.findById(group.project);
+    const memberIds = project ? project.members.map((m: any) => m.user) : [];
     const memberUsers = await User.find({
-      _id: { $in: group.members },
+      _id: { $in: memberIds },
     }).select("name");
 
     const members = memberUsers.map((m) => ({
@@ -93,7 +96,7 @@ export async function POST(
 
     if (recipientIds.length > 0) {
       const senderName = user!.name || "Someone";
-      const link = `/discussions?channel=${groupId}`;
+      const link = `/projects/${group.project}?tab=discussions&channel=${groupId}`;
       const preview = parsed.data.content.slice(0, 100);
 
       const notifs = recipientIds.map((recipientId) => ({

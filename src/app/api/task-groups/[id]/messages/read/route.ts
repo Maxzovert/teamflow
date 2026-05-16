@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { connectDB } from "@/lib/db";
 import { Message } from "@/models/Message";
-import { DiscussionGroup } from "@/models/DiscussionGroup";
+import { TaskGroup } from "@/models/TaskGroup";
 import { apiSuccess, apiError, requireApiAuth } from "@/lib/api-utils";
 
 export async function POST(
@@ -25,8 +25,8 @@ export async function POST(
 
   await connectDB();
 
-  const group = await DiscussionGroup.findById(groupId);
-  if (!group) return apiError("Discussion group not found", 404);
+  const group = await TaskGroup.findById(groupId);
+  if (!group) return apiError("Task group not found", 404);
 
   const userId = new mongoose.Types.ObjectId(user!.id);
   const ids = messageIds
@@ -38,7 +38,7 @@ export async function POST(
   await Message.updateMany(
     {
       _id: { $in: ids },
-      discussionGroup: groupId,
+      taskGroup: groupId,
       sender: { $ne: userId },
       "readBy.user": { $ne: userId },
     },

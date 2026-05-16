@@ -35,6 +35,7 @@ export const projectUpdateSchema = z.object({
 export const taskGroupSchema = z.object({
   name: z.string().min(2, "Group name is required"),
   description: z.string().optional(),
+  icon: z.string().max(8).optional().nullable(),
   permission: z.enum(["admin", "open"]).default("open"),
 });
 
@@ -78,12 +79,7 @@ export const messageSchema = z.object({
   suppressNotifications: z.boolean().optional(),
 });
 
-export const discussionGroupSchema = z.object({
-  name: z.string().min(2, "Group name is required"),
-  description: z.string().optional(),
-  memberIds: z.array(z.string()).optional(),
-  permission: z.enum(["admin", "open"]).default("open"),
-});
+
 
 export const profileUpdateSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").optional(),

@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import { connectDB } from "@/lib/db";
 import { Project } from "@/models/Project";
 import { TaskGroup } from "@/models/TaskGroup";
-import { DiscussionGroup } from "@/models/DiscussionGroup";
 import { Task } from "@/models/Task";
 import { projectUpdateSchema } from "@/lib/validations";
 import { getMemberUserId } from "@/lib/member-id";
@@ -48,23 +47,35 @@ export async function GET(
     delete projectPayload.joinCode;
   }
 
-  const [taskGroups, discussionGroups, tasks] = await Promise.all([
-    TaskGroup.find({ project: id }),
-    DiscussionGroup.find({ project: id, members: userId }).populate(
-      "members",
-      "name email avatar"
-    ),
+  const taskGroupQuery: any = { project: id };
+  if (!canManage) {
+    taskGroupQuery.$or = [
+      { permission: "open" },
+      { permission: { $exists: false } },
+    ];
+  }
+
+  const [taskGroupsRaw, tasks] = await Promise.all([
+    TaskGroup.find(taskGroupQuery),
     Task.find({ project: id })
       .populate("assignedTo", "name email avatar")
       .populate("createdBy", "name email avatar")
       .sort({ createdAt: -1 }),
   ]);
 
+  // We should also filter tasks to only those belonging to visible task groups, or no task group.
+  const visibleGroupIds = taskGroupsRaw.map((g) => g._id.toString());
+  const filteredTasks = tasks.filter((t) => {
+    if (!t.taskGroup) return true;
+    return visibleGroupIds.includes(t.taskGroup.toString());
+  });
+
+  const taskGroups = taskGroupsRaw;
+
   return apiSuccess({
     project: projectPayload,
     taskGroups,
-    discussionGroups,
-    tasks,
+    tasks: filteredTasks,
     canManage,
   });
 }

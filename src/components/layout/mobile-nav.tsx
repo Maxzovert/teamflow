@@ -14,7 +14,6 @@ const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Home" },
   { href: "/projects", icon: FolderKanban, label: "Projects" },
   { href: "/todos", icon: CheckSquare, label: "Todos" },
-  { href: "/discussions", icon: MessageSquare, label: "Chat" },
 ];
 
 export function MobileNav() {

@@ -128,7 +128,7 @@ export function ChatPanel({
 
     const onMessage = (raw: Record<string, unknown>) => {
       const msg = normalizeChatMessage(raw, groupId);
-      if (msg.discussionGroup && msg.discussionGroup !== groupId) return;
+      if (msg.taskGroup && msg.taskGroup !== groupId) return;
       addMessage(msg);
     };
 

@@ -19,7 +19,7 @@ export interface IAttachment {
 
 export interface IMessage extends Document {
   _id: mongoose.Types.ObjectId;
-  discussionGroup: mongoose.Types.ObjectId;
+  taskGroup: mongoose.Types.ObjectId;
   sender: mongoose.Types.ObjectId;
   content: string;
   attachments: IAttachment[];
@@ -57,9 +57,9 @@ const AttachmentSchema = new Schema<IAttachment>(
 
 const MessageSchema = new Schema<IMessage>(
   {
-    discussionGroup: {
+    taskGroup: {
       type: Schema.Types.ObjectId,
-      ref: "DiscussionGroup",
+      ref: "TaskGroup",
       required: true,
     },
     sender: { type: Schema.Types.ObjectId, ref: "User", required: true },
@@ -71,7 +71,7 @@ const MessageSchema = new Schema<IMessage>(
   { timestamps: true }
 );
 
-MessageSchema.index({ discussionGroup: 1, createdAt: -1 });
+MessageSchema.index({ taskGroup: 1, createdAt: -1 });
 
 export const Message: Model<IMessage> =
   mongoose.models.Message ||

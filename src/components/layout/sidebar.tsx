@@ -16,7 +16,6 @@ const navItems = [
   { href: "/dashboard", label: "Home", icon: LayoutDashboard },
   { href: "/projects", label: "Projects", icon: FolderKanban },
   { href: "/todos", label: "My Todos", icon: CheckSquare },
-  { href: "/discussions", label: "Discussions", icon: MessageSquare },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 

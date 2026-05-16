@@ -54,7 +54,7 @@ export function useSocket() {
     const onMessage = (raw: Record<string, unknown>) => {
       const message = normalizeChatMessage(raw);
       const active = useChatStore.getState().activeGroupId;
-      const gid = message.discussionGroup;
+      const gid = message.taskGroup;
       if (active && gid && gid !== active) return;
       useChatStore.getState().addMessage(message);
     };
@@ -62,7 +62,7 @@ export function useSocket() {
     const onReaction = (raw: Record<string, unknown>) => {
       const message = normalizeChatMessage(raw);
       const active = useChatStore.getState().activeGroupId;
-      const gid = message.discussionGroup;
+      const gid = message.taskGroup;
       if (active && gid && gid !== active) return;
       useChatStore.getState().updateMessage(message);
     };

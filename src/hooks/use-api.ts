@@ -67,6 +67,7 @@ export function useCreateTaskGroup(projectId: string) {
     mutationFn: (data: {
       name: string;
       description?: string;
+      icon?: string;
       permission: "admin" | "open";
     }) =>
       fetchApi(`/api/projects/${projectId}/task-groups`, {
@@ -80,47 +81,35 @@ export function useCreateTaskGroup(projectId: string) {
   });
 }
 
-export function useMyDiscussions() {
-  return useQuery({
-    queryKey: ["discussions"],
-    queryFn: () => fetchApi("/api/discussions"),
+export function useDeleteTaskGroup(projectId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (groupId: string) =>
+      fetchApi(`/api/projects/${projectId}/task-groups/${groupId}`, {
+        method: "DELETE",
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["project", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["home"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
   });
 }
 
 export function useDiscussionContext(groupId: string) {
   return useQuery({
     queryKey: ["discussion", groupId],
-    queryFn: () => fetchApi(`/api/discussions/${groupId}`),
+    queryFn: () => fetchApi(`/api/task-groups/${groupId}`),
     enabled: !!groupId,
     staleTime: 60 * 1000,
-  });
-}
-
-export function useCreateDiscussionGroup(projectId: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (data: {
-      name: string;
-      description?: string;
-      permission?: "open" | "admin";
-    }) =>
-      fetchApi(`/api/projects/${projectId}/discussions`, {
-        method: "POST",
-        body: JSON.stringify(data),
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["project", projectId] });
-      queryClient.invalidateQueries({ queryKey: ["discussions"] });
-      queryClient.invalidateQueries({ queryKey: ["home"] });
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
-    },
   });
 }
 
 export function useReactToMessage(groupId: string) {
   return useMutation({
     mutationFn: ({ messageId, emoji }: { messageId: string; emoji: string }) =>
-      fetchApi(`/api/discussions/${groupId}/messages/${messageId}/react`, {
+      fetchApi(`/api/task-groups/${groupId}/messages/${messageId}/react`, {
         method: "POST",
         body: JSON.stringify({ emoji }),
       }),
@@ -130,7 +119,7 @@ export function useReactToMessage(groupId: string) {
 export function useMarkMessageRead(groupId: string) {
   return useMutation({
     mutationFn: (messageId: string) =>
-      fetchApi(`/api/discussions/${groupId}/messages/${messageId}/read`, {
+      fetchApi(`/api/task-groups/${groupId}/messages/${messageId}/read`, {
         method: "POST",
       }),
   });
@@ -287,7 +276,7 @@ export function useUpdateTodo() {
 export function useMessages(groupId: string) {
   return useQuery({
     queryKey: ["messages", groupId],
-    queryFn: () => fetchApi(`/api/discussions/${groupId}/messages`),
+    queryFn: () => fetchApi(`/api/task-groups/${groupId}/messages`),
     enabled: !!groupId,
     staleTime: 15 * 1000,
   });
@@ -302,7 +291,7 @@ export function useSendMessage(groupId: string) {
       mentionedUserIds?: string[];
       suppressNotifications?: boolean;
     }) =>
-      fetchApi(`/api/discussions/${groupId}/messages`, {
+      fetchApi(`/api/task-groups/${groupId}/messages`, {
         method: "POST",
         body: JSON.stringify(data),
       }),
@@ -326,7 +315,7 @@ export function useSendMessage(groupId: string) {
 export function useMarkMessagesRead(groupId: string) {
   return useMutation({
     mutationFn: (messageIds: string[]) =>
-      fetchApi(`/api/discussions/${groupId}/messages/read`, {
+      fetchApi(`/api/task-groups/${groupId}/messages/read`, {
         method: "POST",
         body: JSON.stringify({ messageIds }),
       }),

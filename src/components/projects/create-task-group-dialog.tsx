@@ -36,6 +36,7 @@ export function CreateTaskGroupDialog({
   const setOpen = onOpenChange ?? setInternalOpen;
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [icon, setIcon] = useState("");
   const [permission, setPermission] = useState<"open" | "admin">("open");
 
   const createGroup = useCreateTaskGroup(projectId);
@@ -43,9 +44,10 @@ export function CreateTaskGroupDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const effectivePermission = canCreateAdminGroup ? permission : "open";
-    await createGroup.mutateAsync({ name, description, permission: effectivePermission });
+    await createGroup.mutateAsync({ name, description, icon, permission: effectivePermission });
     setName("");
     setDescription("");
+    setIcon("");
     setPermission("open");
     setOpen(false);
   };
@@ -65,15 +67,28 @@ export function CreateTaskGroupDialog({
           <DialogTitle>Create Task Group</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
-          <div className="space-y-2">
-            <Label htmlFor="group-name">Name</Label>
-            <Input
-              id="group-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Sprint 1, Design, Backend"
-              required
-            />
+          <div className="flex gap-4">
+            <div className="space-y-2 shrink-0">
+              <Label htmlFor="group-icon">Icon</Label>
+              <Input
+                id="group-icon"
+                value={icon}
+                onChange={(e) => setIcon(e.target.value)}
+                placeholder="e.g. 🚀"
+                maxLength={8}
+                className="w-16 text-center text-lg"
+              />
+            </div>
+            <div className="space-y-2 flex-1">
+              <Label htmlFor="group-name">Name</Label>
+              <Input
+                id="group-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. Sprint 1, Design, Backend"
+                required
+              />
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="group-desc">Description</Label>

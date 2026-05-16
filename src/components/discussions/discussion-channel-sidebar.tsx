@@ -8,6 +8,7 @@ export interface DiscussionChannelItem {
   _id: string;
   name: string;
   description?: string;
+  icon?: string;
   permission?: "open" | "admin";
 }
 

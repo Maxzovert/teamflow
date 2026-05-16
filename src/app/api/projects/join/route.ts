@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import { connectDB } from "@/lib/db";
 import { Project } from "@/models/Project";
-import { DiscussionGroup } from "@/models/DiscussionGroup";
 import { joinProjectSchema } from "@/lib/validations";
 import { getMemberUserId } from "@/lib/member-id";
 import { normalizeJoinCode } from "@/lib/project-join-code";
@@ -47,14 +46,6 @@ export async function POST(req: Request) {
       joinedAt: new Date(),
     });
     await project.save();
-
-    await DiscussionGroup.updateMany(
-      {
-        project: project._id,
-        $or: [{ permission: "open" }, { permission: { $exists: false } }],
-      },
-      { $addToSet: { members: userId } }
-    );
 
     const ownerId = getMemberUserId(project.owner);
     const joinTitle = "New member joined";

@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import { connectDB } from "@/lib/db";
 import { Project } from "@/models/Project";
 import { TaskGroup } from "@/models/TaskGroup";
-import { DiscussionGroup } from "@/models/DiscussionGroup";
 import { projectSchema } from "@/lib/validations";
 import { apiSuccess, apiError, requireApiAuth } from "@/lib/api-utils";
 import { logActivity } from "@/lib/activity";
@@ -53,22 +52,13 @@ export async function POST(req: Request) {
       ],
     });
 
-    await Promise.all([
-      TaskGroup.create({
-        project: project._id,
-        name: "General",
-        description: "Default task group",
-        permission: "open",
-        admins: [user!.id],
-      }),
-      DiscussionGroup.create({
-        project: project._id,
-        name: "General",
-        description: "Default discussion channel",
-        members: [user!.id],
-        createdBy: user!.id,
-      }),
-    ]);
+    await TaskGroup.create({
+      project: project._id,
+      name: "General",
+      description: "Default task group",
+      permission: "open",
+      admins: [user!.id],
+    });
 
     await logActivity({
       projectId: project._id.toString(),
