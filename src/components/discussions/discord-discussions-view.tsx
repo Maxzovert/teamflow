@@ -5,6 +5,13 @@ import { Hash, Loader2, MessageSquare, Shield, Trash2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatPanel } from "@/components/chat/chat-panel";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { useDeleteTaskGroup } from "@/hooks/use-api";
 import type { DiscussionChannelItem } from "./discussion-channel-sidebar";
@@ -44,16 +51,17 @@ export function DiscordDiscussionsView({
 
   const showChat = !!activeChannelId;
 
+  const [groupToDelete, setGroupToDelete] = useState<string | null>(null);
+
   const deleteGroup = useDeleteTaskGroup(project._id);
 
-  const handleDelete = async (e: React.MouseEvent, channelId: string) => {
-    e.stopPropagation();
-    if (window.confirm("Are you sure you want to delete this group? All tasks and messages will be permanently lost.")) {
-      await deleteGroup.mutateAsync(channelId);
-      if (activeChannelId === channelId) {
-        setActiveChannelId(null);
-      }
+  const confirmDelete = async () => {
+    if (!groupToDelete) return;
+    await deleteGroup.mutateAsync(groupToDelete);
+    if (activeChannelId === groupToDelete) {
+      setActiveChannelId(null);
     }
+    setGroupToDelete(null);
   };
 
   useEffect(() => {
@@ -103,17 +111,12 @@ export function DiscordDiscussionsView({
     >
       {/* Channel list */}
       <aside
-        className="flex flex-col min-h-0 border-r border-slate-200 bg-slate-50/80 shrink-0 w-[140px] sm:w-[200px] md:w-[240px]"
+        className="flex flex-col min-h-0 border-r border-slate-200 bg-slate-50/80 shrink-0 w-[64px] sm:w-[72px]"
       >
-        <div className="shrink-0 flex items-center gap-1 px-3 h-14 border-b border-slate-200 bg-white">
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
-              Groups
-            </p>
-            <p className="text-sm font-semibold text-slate-900 truncate">
-              {project.name}
-            </p>
-          </div>
+        <div className="shrink-0 flex items-center justify-center h-14 border-b border-slate-200 bg-white">
+          <p className="text-xs font-medium text-slate-500 uppercase tracking-wide truncate px-1">
+            {project.name.charAt(0)}
+          </p>
         </div>
 
         <ScrollArea className="flex-1 min-h-0">
@@ -125,23 +128,23 @@ export function DiscordDiscussionsView({
                   key={channel._id}
                   type="button"
                   onClick={() => selectChannel(channel._id)}
+                  title={channel.name}
                   className={cn(
-                    "group flex w-full items-center gap-2 px-2 sm:px-3 py-2 rounded-lg text-sm transition-colors",
+                    "group relative flex w-10 h-10 sm:w-12 sm:h-12 mx-auto items-center justify-center rounded-2xl transition-all duration-200",
                     isActive
-                      ? "bg-indigo-600 text-white"
-                      : "text-slate-600 hover:bg-white hover:text-slate-900"
+                      ? "bg-indigo-600 text-white rounded-xl shadow-md"
+                      : "text-slate-600 bg-white hover:bg-indigo-50 hover:text-indigo-600 hover:rounded-xl shadow-sm border border-slate-200/60"
                   )}
                 >
-                  <div className="flex-1 min-w-0 flex items-center gap-2">
+                  <div className="flex-1 min-w-0 flex items-center justify-center">
                     {channel.icon ? (
-                      <span className="text-base shrink-0">{channel.icon}</span>
+                      <span className="text-xl shrink-0 leading-none">{channel.icon}</span>
                     ) : channel.permission === "admin" ? (
-                      <Shield className="h-4 w-4 shrink-0 opacity-70" />
+                      <Shield className="h-5 w-5 shrink-0 opacity-70" />
                     ) : (
-                      <Hash className="h-4 w-4 shrink-0 opacity-70" />
+                      <Hash className="h-5 w-5 shrink-0 opacity-70" />
                     )}
-                    <span className="truncate hidden sm:block">{channel.name}</span>
-                    <span className="truncate sm:hidden text-xs">{channel.name}</span>
+                    <span className="hidden">{channel.name}</span>
                   </div>
                   {channel.permission === "admin" && (
                     <span className={cn(
@@ -155,11 +158,14 @@ export function DiscordDiscussionsView({
                     <div
                       role="button"
                       tabIndex={0}
-                      onClick={(e) => handleDelete(e, channel._id)}
-                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-slate-200/50 rounded transition-opacity"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setGroupToDelete(channel._id);
+                      }}
+                      className="absolute -right-1 -top-1 opacity-0 group-hover:opacity-100 bg-white p-1 rounded-full shadow border border-slate-200 transition-opacity z-10"
                       title="Delete group"
                     >
-                      <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                      <Trash2 className="h-3 w-3 text-red-500" />
                     </div>
                   )}
                 </button>
@@ -178,7 +184,7 @@ export function DiscordDiscussionsView({
             ) : (
               <Hash className="h-5 w-5 shrink-0 text-slate-400" />
             )}
-            <span className="text-sm font-semibold text-slate-900 truncate">
+            <span className="text-sm font-semibold text-slate-900 truncate sm:hidden">
               {activeChannel.name}
             </span>
             {activeChannel.permission === "admin" && (
@@ -206,6 +212,26 @@ export function DiscordDiscussionsView({
           </p>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!groupToDelete} onOpenChange={(open) => !open && setGroupToDelete(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Group</DialogTitle>
+            <p className="text-sm text-slate-500 mt-2">
+              Are you sure you want to delete this group? All associated tasks and chat messages will be permanently lost. This action cannot be undone.
+            </p>
+          </DialogHeader>
+          <div className="mt-4 flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setGroupToDelete(null)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete} disabled={deleteGroup.isPending}>
+              {deleteGroup.isPending ? "Deleting..." : "Delete Group"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

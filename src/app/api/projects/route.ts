@@ -52,13 +52,6 @@ export async function POST(req: Request) {
       ],
     });
 
-    await TaskGroup.create({
-      project: project._id,
-      name: "General",
-      description: "Default task group",
-      permission: "open",
-      admins: [user!.id],
-    });
 
     await logActivity({
       projectId: project._id.toString(),
