@@ -4,23 +4,23 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
         default:
-          "bg-indigo-600 text-slate-900 shadow-md shadow-indigo-600/20 hover:bg-indigo-500",
+          "bg-[var(--primary)] text-white shadow-sm hover:opacity-90",
         secondary:
-          "bg-slate-100 text-slate-900 border border-slate-200 hover:bg-slate-200",
-        ghost: "hover:bg-slate-100 text-slate-600 hover:text-slate-900",
-        destructive: "bg-red-600 text-slate-900 hover:bg-red-500",
+          "bg-[#F4F5F7] text-[#172B4D] hover:bg-[#EBECF0]",
+        ghost: "hover:bg-[#F4F5F7] text-[#5E6C84] hover:text-[#172B4D]",
+        destructive: "bg-[#CA3521] text-white hover:bg-[#AE2A19]",
         outline:
-          "border border-slate-200 bg-white hover:bg-slate-50 text-slate-700",
+          "border border-[var(--border)] bg-white hover:bg-[#F4F5F7] text-[#172B4D]",
       },
       size: {
         default: "h-10 px-4 py-2",
-        sm: "h-8 rounded-lg px-3 text-xs",
-        lg: "h-12 rounded-xl px-8",
+        sm: "h-8 rounded px-3 text-xs",
+        lg: "h-12 rounded-lg px-8",
         icon: "h-10 w-10",
       },
     },

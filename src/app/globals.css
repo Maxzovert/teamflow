@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f5f3ff;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --card-muted: #ede9fe;
-  --border: #e9e5ff;
-  --border-strong: #c4b5fd;
-  --primary: #7c3aed;
-  --primary-foreground: #ffffff;
-  --accent: #06b6d4;
-  --muted: #64748b;
-  --ring: #7c3aed;
+  --background: #FAFBFC;
+  --foreground: #172B4D;
+  --card: #FFFFFF;
+  --card-muted: #F4F5F7;
+  --border: #DFE1E6;
+  --border-strong: #C1C7D0;
+  --primary: #0C66E4;
+  --primary-foreground: #FFFFFF;
+  --accent: #0052CC;
+  --muted: #5E6C84;
+  --ring: #0C66E4;
 }
 
 @theme inline {
@@ -34,25 +34,20 @@ body {
 }
 
 .glass {
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(16px);
+  background: #FFFFFF;
   border: 1px solid var(--border);
-  box-shadow: 0 1px 3px rgba(124, 58, 237, 0.06);
+  box-shadow: 0 1px 1px rgba(9, 30, 66, 0.25), 0 0 1px rgba(9, 30, 66, 0.31);
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(20px);
+  background: #FFFFFF;
   border: 1px solid var(--border);
-  border-radius: 1rem;
-  box-shadow: 0 4px 24px rgba(124, 58, 237, 0.08);
+  border-radius: 8px;
+  box-shadow: 0 1px 1px rgba(9, 30, 66, 0.25), 0 0 1px rgba(9, 30, 66, 0.31);
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #7c3aed, #06b6d4);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--primary);
 }
 
 .safe-area-pb {
@@ -69,10 +64,10 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c4b5fd;
+  background: #C1C7D0;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a78bfa;
+  background: #A5ADBA;
 }

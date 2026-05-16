@@ -52,7 +52,7 @@ export function CreateTaskGroupDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      {!hideTrigger && (
+      {!hideTrigger && controlledOpen === undefined && (
         <DialogTrigger asChild>
           <Button size="sm" variant="outline">
             <Plus className="h-4 w-4" />

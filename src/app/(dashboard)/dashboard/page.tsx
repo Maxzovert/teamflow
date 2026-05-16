@@ -110,11 +110,11 @@ export default function DashboardPage() {
         subtitle={`Welcome back, ${session?.user?.name?.split(" ")[0] || "there"}`}
       />
 
-      <div className="p-4 lg:p-6 max-w-7xl mx-auto space-y-8 pb-32">
+      <div className="px-3 py-4 lg:px-6 lg:py-6 max-w-7xl mx-auto space-y-6 lg:space-y-8 pb-28">
         <section>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <FolderKanban className="h-5 w-5 text-indigo-600" />
+              <FolderKanban className="h-5 w-5 text-blue-600" />
               <h2 className="text-lg font-semibold text-slate-900">Your Projects</h2>
             </div>
             <CreateProjectDialog />
@@ -122,7 +122,7 @@ export default function DashboardPage() {
 
           {isLoading ? (
             <div className="flex justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+              <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
             </div>
           ) : !home?.projects?.length ? (
             <div className="text-center py-12 rounded-2xl border border-dashed border-slate-200 bg-white">
@@ -150,7 +150,7 @@ export default function DashboardPage() {
           <section>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-slate-900">My Todos</h2>
-              <Link href="/todos" className="text-sm text-indigo-600 hover:underline">
+              <Link href="/todos" className="text-sm text-blue-600 hover:underline">
                 View all
               </Link>
             </div>

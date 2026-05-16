@@ -16,6 +16,7 @@ import { CreateTaskGroupDialog } from "@/components/projects/create-task-group-d
 import { DiscordDiscussionsView } from "@/components/discussions/discord-discussions-view";
 import type { DiscussionChannelItem } from "@/components/discussions/discussion-channel-sidebar";
 import { ProjectJoinCodeCard } from "@/components/projects/project-join-code-card";
+import { ProjectActionMenu } from "@/components/projects/project-action-menu";
 import { useProject } from "@/hooks/use-api";
 import { cn } from "@/lib/utils";
 
@@ -70,11 +71,10 @@ function toId(value: unknown): string {
 }
 
 function ProjectDetailContent({
-  params,
+  id,
 }: {
-  params: Promise<{ id: string }>;
+  id: string;
 }) {
-  const { id } = use(params);
   const searchParams = useSearchParams();
   const router = useRouter();
   const { data: session } = useSession();
@@ -90,6 +90,8 @@ function ProjectDetailContent({
   );
   const [activeTaskGroup, setActiveTaskGroup] = useState<string | "all">("all");
   const [joinCodeOpen, setJoinCodeOpen] = useState(false);
+  const [taskDialogOpen, setTaskDialogOpen] = useState(false);
+  const [groupDialogOpen, setGroupDialogOpen] = useState(false);
 
   useEffect(() => {
     if (tabParam === "discussions" || tabParam === "members" || tabParam === "tasks") {
@@ -160,8 +162,8 @@ function ProjectDetailContent({
     );
   }
 
-  const myRole = project.members.find(
-    (m) => toId(m.user._id) === session?.user?.id
+  const myRole = project.members?.find(
+    (m) => toId(m.user?._id) === session?.user?.id
   )?.role;
   const isOwner = session?.user?.id === toId(project.owner);
   const canManage =
@@ -213,30 +215,23 @@ function ProjectDetailContent({
           "h-[calc(100dvh-5rem)] overflow-hidden lg:h-auto lg:min-h-[calc(100vh-4rem)] lg:overflow-visible"
       )}
     >
-      <Header title={project.name} subtitle={project.description} />
+      <Header title={project.name} subtitle={project.description} backHref="/dashboard" />
       <div
         className={cn(
           "max-w-7xl mx-auto w-full flex flex-col",
           isDiscussionsTab
-            ? "flex-1 min-h-0 px-4 lg:px-6 pt-4 lg:pt-6 pb-0 gap-3"
-            : "p-4 lg:p-6 space-y-6"
+            ? "flex-1 min-h-0 px-4 lg:px-6 pt-0 pb-0 gap-3"
+            : "p-4 lg:p-6 pt-0 space-y-4"
         )}
       >
-        <Link
-          href="/dashboard"
-          className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-900 transition-colors shrink-0"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to home
-        </Link>
 
         <Tabs
           value={activeTab}
           onValueChange={handleTabChange}
           className={cn(isDiscussionsTab && "flex flex-col flex-1 min-h-0")}
         >
-          <div className="flex flex-wrap items-center gap-2 shrink-0">
-            <TabsList className="w-fit">
+          <div className="flex flex-wrap items-center justify-between shrink-0 border-b border-slate-200">
+            <TabsList className="w-auto border-none">
               <TabsTrigger value="tasks">Tasks</TabsTrigger>
               <TabsTrigger value="discussions">Discussions</TabsTrigger>
               <TabsTrigger value="members">Members</TabsTrigger>
@@ -244,9 +239,9 @@ function ProjectDetailContent({
             {canManage && (
               <Button
                 type="button"
-                variant={joinCodeOpen ? "secondary" : "outline"}
+                variant={joinCodeOpen ? "secondary" : "ghost"}
                 size="sm"
-                className="gap-1.5"
+                className="gap-1.5 h-8 mb-1 text-slate-600 hover:text-slate-900"
                 onClick={() => setJoinCodeOpen((open) => !open)}
               >
                 <KeyRound className="h-4 w-4" />
@@ -270,15 +265,15 @@ function ProjectDetailContent({
           )}
 
           <TabsContent value="tasks" className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-3 mt-2">
+              <div className="flex flex-wrap items-center gap-1 bg-slate-50 p-1 rounded-lg border border-slate-200">
                 <button
                   type="button"
                   onClick={() => setActiveTaskGroup("all")}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                     activeTaskGroup === "all"
-                      ? "bg-indigo-600 text-white"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      ? "bg-white text-[var(--primary)] shadow-sm ring-1 ring-slate-200/50"
+                      : "bg-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
                   }`}
                 >
                   All ({detail?.tasks?.length || 0})
@@ -288,27 +283,39 @@ function ProjectDetailContent({
                     key={g._id}
                     type="button"
                     onClick={() => setActiveTaskGroup(g._id)}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${
+                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center gap-1.5 ${
                       activeTaskGroup === g._id
-                        ? "bg-indigo-600 text-white"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        ? "bg-white text-[var(--primary)] shadow-sm ring-1 ring-slate-200/50"
+                        : "bg-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
                     }`}
                   >
-                    {g.name}
                     {g.permission === "admin" ? (
-                      <Shield className="h-3 w-3" />
+                      <Shield className="h-3.5 w-3.5 text-slate-400" />
                     ) : (
-                      <Users className="h-3 w-3" />
+                      <Users className="h-3.5 w-3.5 text-slate-400" />
                     )}
+                    {g.name}
                   </button>
                 ))}
               </div>
               <div className="flex gap-2">
+                <ProjectActionMenu
+                  onAddGroup={() => setGroupDialogOpen(true)}
+                  onAddTask={() => setTaskDialogOpen(true)}
+                  canCreateAdminGroup={canCreateAdminGroup}
+                />
                 <CreateTaskGroupDialog
                   projectId={id}
                   canCreateAdminGroup={canCreateAdminGroup}
+                  open={groupDialogOpen}
+                  onOpenChange={setGroupDialogOpen}
                 />
-                <CreateTaskDialog projectId={id} taskGroups={taskGroups} />
+                <CreateTaskDialog 
+                  projectId={id} 
+                  taskGroups={taskGroups}
+                  open={taskDialogOpen}
+                  onOpenChange={setTaskDialogOpen}
+                />
               </div>
             </div>
 
@@ -358,17 +365,21 @@ function ProjectDetailContent({
 
           <TabsContent value="members">
             <div className="grid gap-3 sm:grid-cols-2">
-              {project.members.map((member) => {
+              {project.members?.map((member, index) => {
+                if (!member || !member.user) return null;
+
                 const initials = member.user.name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")
-                  .toUpperCase()
-                  .slice(0, 2);
+                  ? member.user.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .toUpperCase()
+                      .slice(0, 2)
+                  : "?";
 
                 return (
                   <div
-                    key={member.user._id}
+                    key={member.user._id || index}
                     className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 bg-white shadow-sm"
                   >
                     <Avatar>
@@ -397,20 +408,20 @@ function ProjectDetailContent({
   );
 }
 
-export default function ProjectDetailPage({
-  params,
-}: {
+export default function ProjectDetailPage(props: {
   params: Promise<{ id: string }>;
 }) {
+  const params = use(props.params);
+
   return (
     <Suspense
       fallback={
         <div className="flex items-center justify-center h-full">
-          <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+          <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
         </div>
       }
     >
-      <ProjectDetailContent params={params} />
+      <ProjectDetailContent id={params.id} />
     </Suspense>
   );
 }

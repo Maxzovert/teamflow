@@ -30,10 +30,16 @@ interface TaskGroup {
 interface CreateTaskDialogProps {
   projectId: string;
   taskGroups: TaskGroup[];
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function CreateTaskDialog({ projectId, taskGroups }: CreateTaskDialogProps) {
-  const [open, setOpen] = useState(false);
+export function CreateTaskDialog({ projectId, taskGroups, open: externalOpen, onOpenChange: setExternalOpen }: CreateTaskDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  
+  const isControlled = externalOpen !== undefined;
+  const open = isControlled ? externalOpen : internalOpen;
+  const setOpen = isControlled ? setExternalOpen! : setInternalOpen;
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("medium");
@@ -81,12 +87,14 @@ export function CreateTaskDialog({ projectId, taskGroups }: CreateTaskDialogProp
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm">
-          <Plus className="h-4 w-4" />
-          New Task
-        </Button>
-      </DialogTrigger>
+      {!isControlled && (
+        <DialogTrigger asChild>
+          <Button size="sm">
+            <Plus className="h-4 w-4" />
+            New Task
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Create Task</DialogTitle>

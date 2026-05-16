@@ -24,9 +24,9 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 h-screen border-r border-violet-200/60 bg-white/80 backdrop-blur-xl">
-      <div className="flex items-center gap-3 px-6 py-6 border-b border-violet-100">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-cyan-500 shadow-lg shadow-violet-500/30">
+    <aside className="hidden lg:flex flex-col w-64 h-screen border-r border-[var(--border)] bg-white">
+      <div className="flex items-center gap-3 px-6 py-6 border-b border-[var(--border)]">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--primary)] shadow-sm">
           <Zap className="h-5 w-5 text-white" />
         </div>
         <div>
@@ -48,8 +48,8 @@ export function Sidebar() {
               className={cn(
                 "flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-gradient-to-r from-violet-600 to-violet-500 text-white shadow-md shadow-violet-500/25"
-                  : "text-slate-600 hover:text-violet-700 hover:bg-violet-50"
+                  ? "bg-[#E9F2FF] text-[var(--primary)]"
+                  : "text-slate-600 hover:text-[var(--foreground)] hover:bg-[#F4F5F7]"
               )}
             >
               <Icon className="h-5 w-5" />
